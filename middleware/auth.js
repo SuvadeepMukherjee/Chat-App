@@ -17,6 +17,7 @@ If any error occurs, it logs the error and sends a 401 Unauthorized response wit
 const authenticate = async (req, res, next) => {
   try {
     //Extract token from the "Authorization Header"
+    console.log("inside auth middleware");
     const token = req.header("Authorization");
 
     //Verify and decode the JWT
@@ -27,6 +28,7 @@ const authenticate = async (req, res, next) => {
 
     // Attach the user to the request
     req.user = userFromDB;
+    console.log("passing through auth middleware");
 
     // Move to the next middleware
     next();

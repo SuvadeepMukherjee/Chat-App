@@ -42,3 +42,21 @@ exports.createGroup = async (req, res, next) => {
     console.log(err);
   }
 };
+
+exports.getGroups = async (req, res, next) => {
+  try {
+    console.log("inside get groups controller");
+    const groups = await Group.findAll({
+      attributes: ["name", "admin"],
+      include: [
+        {
+          model: UserGroup,
+          where: { userId: req.user.id },
+        },
+      ],
+    });
+    res.status(200).json({ groups: groups });
+  } catch (err) {
+    console.log("Error in getting groups", err);
+  }
+};

@@ -29,5 +29,37 @@ async function createGroup() {
   }
 }
 
+async function getGroups() {
+  try {
+    const token = localStorage.getItem("token");
+    const res = await axios.get("http://localhost:3000/group/getGroups", {
+      headers: { Authorization: token },
+    });
+    getGroups.innerHTML = "";
+    res.data.groups.forEach((group) => {
+      const li = document.createElement("li");
+      const div1 = document.createElement("div");
+      const div2 = document.createElement("div");
+      const span = document.createElement("span");
+      const p = document.createElement("p");
+
+      div1.classList.add("d-flex", "bd-highlight");
+      div2.className = "user_info";
+      span.appendChild(document.createTextNode(group.name));
+      p.appendChild(document.createTextNode(`${group.admin} is Admin`));
+
+      div2.appendChild(span);
+      div2.appendChild(p);
+
+      div1.appendChild(div2);
+      li.appendChild(div1);
+      groups.appendChild(li);
+    });
+  } catch (err) {
+    console.log(err);
+  }
+}
+
 //event listeners
 createGroupBtn.addEventListener("click", createGroup);
+document.addEventListener("DOMContentLoaded", getGroups);
