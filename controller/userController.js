@@ -21,6 +21,17 @@ exports.getSignUpPage = (req, res, next) => {
   res.sendFile(filePath);
 };
 
+/*
+Express route handler : Serves the login page
+*/
+exports.getLoginPage = (req, res, next) => {
+  //construct the filePath for the sign-up page
+  const filePath = path.join(rootDir, "views", "login.html");
+
+  //Sending the sign-up page as the response
+  res.sendFile(filePath);
+};
+
 /* 
 - Handles POST requests on the endpoint user/signup
 - Uses Sequelize transaction to ensure database consistency
