@@ -22,6 +22,7 @@ app.use(express.static("public"));
 
 //importing routers
 const userRouter = require("./router/userRouter");
+const homePageRouter = require("./router/homePageRouter");
 
 // Parse incoming URL-encoded data and make it available in req.body
 // When extended is set to false, body-parser parses URL-encoded data using the classic syntax,
@@ -33,6 +34,7 @@ app.use(bodyParser.json());
 //middleware
 app.use("/", userRouter);
 app.use("/user", userRouter);
+app.use("/homePage", homePageRouter);
 
 //associations
 

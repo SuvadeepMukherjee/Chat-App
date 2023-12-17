@@ -1,0 +1,47 @@
+body,
+html {
+  height: 100%;
+  margin: 0;
+  background: #f4eeff;
+  background: -webkit-linear-gradient(to right, #dcd6f7, #95a1d5);
+  background: linear-gradient(to right, #dcd6f7, #95a1d6);
+}
+
+.container {
+  align-content: center;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.btn-primary {
+  background-color: #424874;
+  border-color: #424874;
+}
+
+.btn-primary:hover {
+  background-color: #a6b1e1;
+  border-color: #a6b1e1;
+}
+
+.btn-primary:focus {
+  box-shadow: 0 0 0 0.2rem rgba(66, 72, 116, 0.5);
+}
+
+.btn-primary:active {
+  background-color: #95a1d5;
+  border-color: #95a1d5;
+}
+
+.text-center {
+  color: #424874;
+}
+
+a {
+  color: #424874;
+}
+
+#backend-response {
+  color: #424874;
+}
