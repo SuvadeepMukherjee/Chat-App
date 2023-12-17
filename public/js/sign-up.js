@@ -30,8 +30,7 @@ async function createUser(event) {
     const response = await axios.post("http://localhost:3000/user/signup", obj);
 
     if (response.status === 200) {
-      console.log("redirect to login page");
-      //window.location.href="/user/login"
+      window.location.href = "/user/login";
     }
   } catch (err) {
     console.log(err);
