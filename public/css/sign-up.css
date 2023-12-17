@@ -33,8 +33,7 @@ html {
   background-color: #95a1d5;
   border-color: #95a1d5;
 }
-
-.text-center {
+a:hover .text-center {
   color: #424874;
 }
 
