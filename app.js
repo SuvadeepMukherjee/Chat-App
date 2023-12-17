@@ -1,6 +1,13 @@
 const express = require("express");
 const dotenv = require("dotenv");
 const bodyParser = require("body-parser");
+const cors = require("cors");
+
+//initializes an express application
+const app = express();
+
+//This server can receive request from any client for GET AND POST requests
+app.use(cors({ origin: "*", methods: ["GET", "POST"] }));
 
 /*
 loads  environment variables from a .env file
@@ -9,9 +16,6 @@ dotenv.config();
 
 //importing sequelize and models
 const sequelize = require("./util/database");
-
-//initializes an express application
-const app = express();
 
 // Serve static files (e.g., CSS, JS) from the "public" folder
 app.use(express.static("public"));
