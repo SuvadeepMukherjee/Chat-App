@@ -21,6 +21,17 @@ exports.getSignUpPage = (req, res, next) => {
   res.sendFile(filePath);
 };
 
+/* 
+- Handles POST requests on the endpoint user/signup
+- Uses Sequelize transaction to ensure database consistency
+- Extracts data from request body 
+- Find users on basis of email or number
+- If user exists returns the function with a 409 status
+- Hashes the password for new users 
+- Creates a new user 
+- Sends 200 OK on succesfull signup 
+- Sends 500 on internal servor errror 
+*/
 exports.postUserSignUp = async (req, res, next) => {
   // Start a Sequelize transaction to ensure database consistency
   const t = await sequelize.transaction();
