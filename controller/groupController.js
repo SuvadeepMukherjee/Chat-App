@@ -60,3 +60,60 @@ exports.getGroups = async (req, res, next) => {
     console.log("Error in getting groups", err);
   }
 };
+
+exports.addTogroup = async (req, res, next) => {
+  try {
+    //extract group name and members from request body
+    const groupName = req.body.groupName;
+    const members = req.body.members;
+
+    //Find the group with the specified name
+    const group = await Group.findOne({ where: { name: groupName } });
+
+    //Check if the group exists
+    if (!group) {
+      return res.status(201).json({ message: "Group does not exist! " });
+    }
+
+    //Find an admin entry for the group and check if the current user is the admin
+    const admin = await UserGroup.findOne({
+      where: {
+        isadmin: 1,
+        groupId: group.id,
+      },
+    });
+
+    //If not admin send an json
+    if (!admin || admin.userId !== req.user.id) {
+      return res
+        .status(201)
+        .json({ message: "Only admins can add new members." });
+    }
+
+    //Find user instances corresponding to the specified emails
+    const invitedMembers = await User.findAll({
+      where: {
+        email: {
+          [Op.or]: members,
+        },
+      },
+    });
+
+    //Add each invited member to group
+    await Promise.all(
+      invitedMembers.map((user) =>
+        UserGroup.create({
+          isadmin: false,
+          userId: user.id,
+          groupId: group.id,
+        })
+      )
+    );
+
+    res.status(201).json({ message: "Members added succesfully!" });
+  } catch (err) {
+    console.log(err);
+
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
