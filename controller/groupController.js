@@ -117,3 +117,63 @@ exports.addTogroup = async (req, res, next) => {
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
+
+exports.deleteFromGroup = async (req, res, next) => {
+  try {
+    //Extract group name and members from request body
+    const groupName = req.body.groupName;
+    const members = req.body.members;
+
+    //Find the group with the specified name
+    const group = await Group.findOne({ where: { name: groupName } });
+
+    //Check if the group exists
+    if (!group) {
+      return res.status(201).json({ message: "Group does not exist" });
+    }
+
+    //Find an admin entry for the group and check if the current user is the admin
+    const admin = await UserGroup.findOne({
+      where: {
+        [Op.and]: [{ isadmin: 1 }, { groupId: group.id }],
+      },
+    });
+
+    //Return json if user is not admin
+    if (!admin || admin.userId !== req.user.id) {
+      return res
+        .status(201)
+        .json({ message: "Only admins can delete members" });
+    }
+    const deletedMembers = await User.findAll({
+      where: {
+        email: {
+          [Op.or]: members,
+        },
+      },
+    });
+
+    //Delete each member from the group
+    await Promise.all(
+      deletedMembers.map(async (user) => {
+        await UserGroup.destroy({
+          where: {
+            [Op.and]: [
+              {
+                isadmin: false,
+                userId: user.id,
+                groupId: group.id,
+              },
+            ],
+          },
+        });
+      })
+    );
+
+    //returb success message if all members are deleted succesfully
+    res.status(201).json({ message: "Members deleted succesfully!" });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
