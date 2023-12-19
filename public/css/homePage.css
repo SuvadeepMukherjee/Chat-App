@@ -2,22 +2,19 @@ body,
 html {
   height: 100%;
   margin: 0;
-  background: #f4eeff;
-  background: -webkit-linear-gradient(to right, #dcd6f7, #95a1d5);
-  background: linear-gradient(to right, #dcd6f7, #95a1d6);
+  background: #7f7fd5;
+  background: -webkit-linear-gradient(to right, #91eae4, #86a8e7, #7f7fd5);
+  background: linear-gradient(to right, #91eae4, #86a8e7, #7f7fd5);
 }
-/* f4eeff
-dcd6f7
-424874
-a6b1e1 */
+
 .chat {
-  margin-top: 40px;
-  margin-bottom: 35px;
+  margin-top: auto;
+  margin-bottom: auto;
 }
 .card {
-  height: 90vh;
+  height: 500px;
   border-radius: 15px !important;
-  background-color: #424874 !important;
+  background-color: rgba(0, 0, 0, 0.4) !important;
 }
 .contacts_body {
   padding: 0.75rem 0 !important;
@@ -152,7 +149,7 @@ a6b1e1 */
   margin-bottom: auto;
   margin-left: 10px;
   border-radius: 25px;
-  background-color: #95a1d5;
+  background-color: #82ccdd;
   padding: 10px;
   position: relative;
 }
@@ -161,7 +158,7 @@ a6b1e1 */
   margin-bottom: auto;
   margin-right: 10px;
   border-radius: 25px;
-  background-color: #dcd6f7;
+  background-color: #78e08f;
   padding: 10px;
   position: relative;
 }
