@@ -1,6 +1,7 @@
 const createGroupBtn = document.getElementById("createGroup");
 const addToGroupBtn = document.getElementById("addToGroup");
 const deleteFromGroupBtn = document.getElementById("deleteFromGroup");
+const logoutBtn = document.getElementById("logout");
 
 async function createGroup() {
   try {
@@ -124,8 +125,14 @@ async function deleteFromGroup() {
   }
 }
 
+function logout() {
+  localStorage.clear();
+  window.location.href = "http://localhost:3000/user/login";
+}
+
 //event listeners
 createGroupBtn.addEventListener("click", createGroup);
 document.addEventListener("DOMContentLoaded", getGroups);
 addToGroupBtn.addEventListener("click", addToGroup);
 deleteFromGroupBtn.addEventListener("click", deleteFromGroup);
+logoutBtn.addEventListener("click", logout);
