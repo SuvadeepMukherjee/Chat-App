@@ -12,4 +12,10 @@ router.post(
   groupController.deleteFromGroup
 );
 
+router.get(
+  "/groupMembers/:groupName",
+  userAuthentication,
+  groupController.groupMembers
+);
+
 module.exports = router;

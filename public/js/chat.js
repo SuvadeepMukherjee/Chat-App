@@ -45,19 +45,36 @@ async function activeGroup(e) {
 
 async function messageSend() {
   try {
-    const token = localStorage.getItem("token");
-    const message = messageTextArea.value;
+    //Remove existing group members display in the chat box if present
+    const members = chatBoxBody.querySelectorAll(".groupMembersDiv");
 
+    // Check if there are any members to remove
+    if (members.length > 0) {
+      members.forEach((member) => {
+        member.remove();
+      });
+    }
+
+    const message = messageTextArea.value;
+    const token = localStorage.getItem("token");
+    const groupName = localStorage.getItem("groupName");
+    if (!groupName || groupName === "") {
+      return alert("Select group to send the message");
+    }
     const res = await axios.post(
       "http://localhost:3000/chat/sendMessage",
       {
         message: message,
+        groupName: groupName,
       },
-      { headers: { Authorization: token } }
+      {
+        headers: { Authorization: token },
+      }
     );
     messageTextArea.value = "";
+    //getMessages();
   } catch (err) {
-    console.log("Something went wrong with sending messages", err);
+    console.log(err);
   }
 }
 
