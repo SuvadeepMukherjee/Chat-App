@@ -77,6 +77,8 @@ UserGroup.belongsTo(User);
 // indicating the group to which the user belongs.
 UserGroup.belongsTo(Group);
 
+const job = require("./jobs/cron");
+job.start();
 /* Syncs Sequelize models with the database( tabels are created or updated )
  and starts the server on port 3000.
  */
