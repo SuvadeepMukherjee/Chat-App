@@ -177,3 +177,50 @@ exports.deleteFromGroup = async (req, res, next) => {
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
+
+exports.groupMembers = async (req, res, next) => {
+  try {
+    //Extract the group name from the request parameters
+    const groupName = req.params.groupName;
+    console.log("passed through groupName ", groupName);
+
+    //Find the group based on the provided group name
+    const group = await Group.findOne({ where: { name: groupName } });
+    console.log("found the group", group);
+
+    //Check if the group exists
+    if (!group) {
+      //If the group does'nt exist , return a 404 response
+      return res.status(404).json({ error: "Group not found" });
+    }
+
+    //Retreive all user-group associations for the found group
+    const userGroup = await UserGroup.findAll({
+      where: { groupId: group.dataValues.id },
+    });
+    console.log("passed through userGroup", userGroup);
+
+    //Initialize an array to store user information
+    const users = [];
+
+    //Use Promise.all to concurrently fetch user details for each user-group association
+    await Promise.all(
+      userGroup.map(async (user) => {
+        const res = await User.findOne({
+          where: { id: user.dataValues.userId },
+        });
+        users.push(res);
+      })
+    );
+
+    console.log(
+      "This is the users array which we are sending to our client",
+      users
+    );
+
+    //Return a succesfull response with the list of users belonging to the group
+    res.status(200).json({ users: users });
+  } catch (err) {
+    console.log("Error in groupMembers middleware", err);
+  }
+};
