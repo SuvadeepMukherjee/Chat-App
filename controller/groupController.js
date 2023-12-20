@@ -195,7 +195,17 @@ exports.addTogroup = async (req, res, next) => {
   }
 };
 
+/*
+- Handles the deletion of members from a group.
+- Verifies that the requester has admin privileges and checks the group's existence.
+- Retrieves users based on provided emails and deletes corresponding UserGroup records.
+- Uses Sequelize transactions to ensure atomicity in database operations.
+- Responds with success or appropriate error messages, including potential edge cases for clarity.
+- Triggered by a POST request to the endpoint group/deleteFromGroup.
+- Invoked from the deleteFromGroup function in group.js, following authentication in auth.js.
+*/
 exports.deleteFromGroup = async (req, res, next) => {
+  const t = await sequelize.transaction();
   try {
     //Extract group name and members from request body
     const groupName = req.body.groupName;
@@ -212,6 +222,8 @@ exports.deleteFromGroup = async (req, res, next) => {
     //Find an admin entry for the group and check if the current user is the admin
     const admin = await UserGroup.findOne({
       where: {
+        //Sequelize's Op.and ensures both isadmin is 1 , groupId matches group.id
+        // for the UserGroup record.
         [Op.and]: [{ isadmin: 1 }, { groupId: group.id }],
       },
     });
@@ -222,6 +234,9 @@ exports.deleteFromGroup = async (req, res, next) => {
         .status(201)
         .json({ message: "Only admins can delete members" });
     }
+
+    // Using Sequelize to retrieve users whose email matches any value in the 'members' array
+    // The resulting 'deletedMembers' array will contain records that satisfy the OR condition.
     const deletedMembers = await User.findAll({
       where: {
         email: {
@@ -230,27 +245,40 @@ exports.deleteFromGroup = async (req, res, next) => {
       },
     });
 
-    //Delete each member from the group
-    await Promise.all(
-      deletedMembers.map(async (user) => {
-        await UserGroup.destroy({
-          where: {
-            [Op.and]: [
-              {
-                isadmin: false,
-                userId: user.id,
-                groupId: group.id,
-              },
-            ],
-          },
-        });
-      })
-    );
+    // Creating an array of promises, each representing the creation of a UserGroup record.
+    // 'invitedMembers.map' iterates through each user in 'invitedMembers' and creates a promise
+    // The promises are in pending state
+    const createUserGroupPromises = deletedMembers.map(async (member) => {
+      // For each user, delete a UserGroup record with specific properties.
+      return UserGroup.destroy({
+        where: {
+          //Sequelize's Op.and ensures all paramaters
+          [Op.and]: [
+            {
+              isadmin: false,
+              userId: member.id,
+              groupId: group.id,
+            },
+          ],
+        },
+      });
+    });
 
-    //returb success message if all members are deleted succesfully
+    //promises  get resolved
+    const resolvedPromises = await Promise.all(createUserGroupPromises);
+
+    //commits the transaction to db
+    t.commit();
+
+    //return success message if all members are deleted succesfully
     res.status(201).json({ message: "Members deleted succesfully!" });
   } catch (err) {
     console.log(err);
+
+    //rolls back the transaction
+    t.rollback();
+
+    //sends an error response
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
@@ -259,7 +287,6 @@ exports.groupMembers = async (req, res, next) => {
   try {
     //Extract the group name from the request parameters
     const groupName = req.params.groupName;
-    console.log("passed through groupName ", groupName);
 
     //Find the group based on the provided group name
     const group = await Group.findOne({ where: { name: groupName } });
