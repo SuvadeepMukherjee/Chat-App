@@ -1,6 +1,8 @@
 const sequelize = require("../util/database");
 const Sequelize = require("sequelize");
 
+// Defines a Sequelize model 'Chat' for the 'chats' table with
+// specified attributes and data types.
 const Chat = sequelize.define("chats", {
   id: {
     type: Sequelize.INTEGER,
