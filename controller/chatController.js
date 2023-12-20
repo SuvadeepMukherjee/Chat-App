@@ -12,7 +12,7 @@ const io = require("socket.io")(5000, {
 
 //callback runs when a new client connects to the socket.io server
 io.on("connection", (socket) => {
-  //callback  runs when the client emits a getMessages event
+  //callback  runs when the server receives  a getMessages event
   //client emits getMessages with the groupName
   socket.on("getMessages", async (groupName) => {
     try {
@@ -35,7 +35,7 @@ io.on("connection", (socket) => {
 /*
 - Handles the POST request on the endpoint /chat/sendMessage 
 - We are making the POST request from the messageSend function in chat.js 
-- Before Passing this controller this controller reaches the auth.js(authenticated user)
+- Before reaching this controller the request reaches the auth.js(authenticated user)
 - This controller handles sending chat messages to a group. It extracts necessary data from the request,
 - creates a new chat entry in the database, and returns a success message or a 500 status in case of an error.
 */
