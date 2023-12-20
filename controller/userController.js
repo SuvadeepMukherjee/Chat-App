@@ -82,7 +82,7 @@ exports.postUserSignUp = async (req, res, next) => {
         .json({ error: "This email or password already exists" });
     }
 
-    //hash the oassword (salt=10)
+    //hash the password (salt=10)
     const hash = await bcrypt.hash(password, 10);
 
     //create a new User
@@ -152,6 +152,7 @@ exports.postUserLogin = async (req, res, next) => {
         token: generateAccessToken(user.id, user.email),
       });
     } else {
+      //response for incorrect password
       return res.status(401).json({
         success: false,
         message: "Password Incorrect",
@@ -159,6 +160,8 @@ exports.postUserLogin = async (req, res, next) => {
     }
   } catch (error) {
     console.error(error);
+
+    //error response
     res.status(500).json({
       success: false,
       message: "Internal Server Error",
