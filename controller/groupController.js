@@ -197,12 +197,12 @@ exports.addTogroup = async (req, res, next) => {
 
 /*
 - Handles the deletion of members from a group.
+- Triggered by a POST request to the endpoint group/deleteFromGroup.
+- Invoked from the deleteFromGroup function in group.js, following authentication in auth.js.
 - Verifies that the requester has admin privileges and checks the group's existence.
 - Retrieves users based on provided emails and deletes corresponding UserGroup records.
 - Uses Sequelize transactions to ensure atomicity in database operations.
 - Responds with success or appropriate error messages, including potential edge cases for clarity.
-- Triggered by a POST request to the endpoint group/deleteFromGroup.
-- Invoked from the deleteFromGroup function in group.js, following authentication in auth.js.
 */
 exports.deleteFromGroup = async (req, res, next) => {
   const t = await sequelize.transaction();
@@ -283,6 +283,14 @@ exports.deleteFromGroup = async (req, res, next) => {
   }
 };
 
+/*
+- Handles getting members from a group 
+- Triggered by a GET request to the endpoint group/groupMembers/${groupName}
+- Invoked from the groupMembers function in group.js following authentication in group.js
+- Retrieves and returns members of a specified group based on the provided group name.
+- Utilizes Sequelize queries to fetch user-group associations and corresponding user details concurrently.
+- Responds with a JSON array containing user information for the members of the group.
+*/
 exports.groupMembers = async (req, res, next) => {
   try {
     //Extract the group name from the request parameters
@@ -290,7 +298,6 @@ exports.groupMembers = async (req, res, next) => {
 
     //Find the group based on the provided group name
     const group = await Group.findOne({ where: { name: groupName } });
-    console.log("found the group", group);
 
     //Check if the group exists
     if (!group) {
@@ -302,29 +309,29 @@ exports.groupMembers = async (req, res, next) => {
     const userGroup = await UserGroup.findAll({
       where: { groupId: group.dataValues.id },
     });
-    console.log("passed through userGroup", userGroup);
 
     //Initialize an array to store user information
     const users = [];
 
     //Use Promise.all to concurrently fetch user details for each user-group association
     await Promise.all(
+      // Iterate through each user-group association
       userGroup.map(async (user) => {
+        // Fetch user details based on user ID
         const res = await User.findOne({
           where: { id: user.dataValues.userId },
         });
+        // Push the user details to the array
         users.push(res);
       })
-    );
-
-    console.log(
-      "This is the users array which we are sending to our client",
-      users
     );
 
     //Return a succesfull response with the list of users belonging to the group
     res.status(200).json({ users: users });
   } catch (err) {
+    //sends an error response
+    res.status(500).json({ message: "Internal Server Error" });
+
     console.log("Error in groupMembers middleware", err);
   }
 };

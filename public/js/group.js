@@ -155,7 +155,6 @@ async function groupMembers() {
         headers: { Authorization: token },
       }
     );
-    console.log(res.data.users);
 
     //Iterte over the retreived users and dynamically create HTML elements to display group members
     res.data.users.forEach((user) => {
