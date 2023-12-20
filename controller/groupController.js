@@ -42,7 +42,7 @@ exports.createGroup = async (req, res, next) => {
     );
 
     // Creating an array of promises, each representing the creation of a UserGroup record.
-    // 'invitedMembers.map' iterates through each user in 'invitedMembers'.
+    // 'invitedMembers.map' iterates through each user in 'invitedMembers' and creates a promise
     // The promises are in pending state
     const createUserGroupPromises = invitedMembers.map(async (member) => {
       // For each user, create a UserGroup record with specific properties.
@@ -113,7 +113,17 @@ exports.getGroups = async (req, res, next) => {
   }
 };
 
+/*
+- Handles the POST requests on the Endpoint group/addToGroup
+- we are making this request from addToGroup function in group.js
+- Before reaching this middleware the request passes through auth.js(authenticated user)
+- Handles adding members to a group.
+- Verifies admin status of the requester and the existence of the group.
+- Retrieves users based on provided emails and creates UserGroup records within a transaction.
+- Responds with success or error messages accordingly.
+*/
 exports.addTogroup = async (req, res, next) => {
+  const t = await sequelize.transaction();
   try {
     //extract group name and members from request body
     const groupName = req.body.groupName;
@@ -142,7 +152,8 @@ exports.addTogroup = async (req, res, next) => {
         .json({ message: "Only admins can add new members." });
     }
 
-    //Find user instances corresponding to the specified emails
+    // Using Sequelize to retrieve users whose email matches any value in the 'members' array
+    // The resulting 'invitedMembers' array will contain records that satisfy the OR condition.
     const invitedMembers = await User.findAll({
       where: {
         email: {
@@ -151,21 +162,35 @@ exports.addTogroup = async (req, res, next) => {
       },
     });
 
-    //Add each invited member to group
-    await Promise.all(
-      invitedMembers.map((user) =>
-        UserGroup.create({
+    // Creating an array of promises, each representing the creation of a UserGroup record.
+    // 'invitedMembers.map' iterates through each user in 'invitedMembers' and creates a promise
+    // The promises are in pending state
+    const createUserGroupPromises = invitedMembers.map(async (member) => {
+      // For each user, create a UserGroup record with specific properties.
+      return UserGroup.create(
+        {
           isadmin: false,
-          userId: user.id,
+          userId: member.id,
           groupId: group.id,
-        })
-      )
-    );
+        },
+        { transaction: t }
+      );
+    });
+
+    //promises  get resolved
+    const resolvedPromises = await Promise.all(createUserGroupPromises);
+
+    //commits the transaction to db
+    t.commit();
 
     res.status(201).json({ message: "Members added succesfully!" });
   } catch (err) {
     console.log(err);
 
+    //rolls back the transaction in case of error
+    t.rollback();
+
+    //sends an error response
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
