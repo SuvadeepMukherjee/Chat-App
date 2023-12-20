@@ -1,9 +1,8 @@
 const Chat = require("../models/chatModel");
 const Group = require("../models/groupModel");
-
 const sequelize = require("../util/database");
 
-//socket server runs on PORT 5000 and allows requests from PORT 3000
+//socket server runs on PORT 5000 and allows requests from http://localhost:3000
 const io = require("socket.io")(5000, {
   cors: {
     // Specify the allowed origin for cross-origin requests.
