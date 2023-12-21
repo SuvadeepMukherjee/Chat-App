@@ -79,7 +79,7 @@ exports.postUserSignUp = async (req, res, next) => {
     if (existingUser) {
       return res
         .status(409)
-        .json({ error: "This email or password already exists" });
+        .json({ error: "This email or phone number already exists" });
     }
 
     //hash the password (salt=10)
