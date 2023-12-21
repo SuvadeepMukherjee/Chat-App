@@ -45,15 +45,25 @@ app.use("/chat", chatRouter);
 app.use("/group", groupRouter);
 
 //Sequelize Model Associations
-User.hasMany(Chat, { onDelete: "CASCADE", hooks: true });
+
+//user-chat
+//when a user is deleted all related chats will also be deleted
+User.hasMany(Chat, { onDelete: "CASCADE" });
 Chat.belongsTo(User);
+
+//user-userGroup
 User.hasMany(UserGroup);
-Group.hasMany(Chat);
-Group.hasMany(UserGroup);
 UserGroup.belongsTo(User);
+
+//chat-group
+Group.hasMany(Chat);
+Chat.belongsTo(Group);
+
+//Group-userGroup
+Group.hasMany(UserGroup);
 UserGroup.belongsTo(Group);
 
-//job
+//initiates the cron job and begins its scheduled execution.
 job.start();
 
 /* Syncs Sequelize models with the database( tabels are created or updated )

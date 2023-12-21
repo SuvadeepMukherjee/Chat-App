@@ -35,7 +35,7 @@ async function createUser(event) {
   } catch (err) {
     console.log(err);
     if (err.response.status === 409) {
-      backendResponse.innerHTML = "Email or password already exists";
+      backendResponse.innerHTML = "Email or Phone already exists";
     }
   }
 }
